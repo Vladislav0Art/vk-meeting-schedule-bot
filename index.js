@@ -14,7 +14,7 @@ const commandsAndDescriptions = {
 
   '/unsubscribe': 'Удаляет пользователя.',
   
-  '/create_new_meeting': 'Создает шаблон встречи.', 
+  '/create': 'Создает шаблон встречи.', 
   
   '/add_address [address]': 'Добавляет адрес в шаблон встечи. Вместо [address] впишите необходимый адрес.',
   
@@ -30,11 +30,11 @@ const commandsAndDescriptions = {
   
   '/add_weather': 'Добавляет погоду в зависимости от выбранного дня.',
   
-  '/discard_meeting': 'Удаляет текущий шаблон встречи.',
+  '/discard': 'Удаляет текущий шаблон встречи.',
   
-  '/meeting_status': 'Показывает всю информацию о текущем шаблоне встречи.',
+  '/status': 'Показывает всю информацию о текущем шаблоне встречи.',
   
-  '/send_meeting': 'Производит отправку сообщения всем, кого Вы указали через команду /invite'
+  '/send': 'Производит отправку сообщения всем, кого Вы указали через команду /invite'
 };
 
 
@@ -178,15 +178,15 @@ bot.command('/unsubscribe', (ctx) => {
 });
 
 
-//  /create_new_meeting command
-bot.command('/create_new_meeting', (ctx) => {
+//  /create command
+bot.command('/create', (ctx) => {
   const id = getIdFromContext(ctx);
   const user = getUserById(id);
 
   if(!user)
     return sendMessageToUser(id, 'Чтобы воспользоваться возможностями бота, необходимо подписаться. Для этого отправьте команду /subscribe.');
   else if(user.isCreatingMeeting)
-    return sendMessageToUser(id, 'Вы уже создаете шаблон встречи. Чтобы отметить создание шаблона, отправьте команду /discard_meeting.');
+    return sendMessageToUser(id, 'Вы уже создаете шаблон встречи. Чтобы отметить создание шаблона, отправьте команду /discard.');
 
   
   const index = findIndexOfUserById(id);
@@ -197,18 +197,18 @@ bot.command('/create_new_meeting', (ctx) => {
 });
 
 
-//  /discard_meeting command
-bot.command('/discard_meeting', (ctx) => {
+//  /discard command
+bot.command('/discard', (ctx) => {
   const id = getIdFromContext(ctx);
   const user = getUserById(id);
 
   if(!user)
     return sendMessageToUser(id, 'Чтобы воспользоваться возможностями бота, необходимо подписаться. Для этого отправьте команду /subscribe.');
   else if(!user.isCreatingMeeting)
-    return sendMessageToUser(id, 'Вы не создаете шаблон встречи. Если Вы хотите создать его, воспользуйтесь командой /create_new_meeting.');
+    return sendMessageToUser(id, 'Вы не создаете шаблон встречи. Если Вы хотите создать его, воспользуйтесь командой /create.');
 
   deleteUserMeetingData(id);
-  sendMessageToUser(id, 'Шаблон встречи удален. Если хотите создать новый, воспользуйте командой /create_new_meeting.');
+  sendMessageToUser(id, 'Шаблон встречи удален. Если хотите создать новый, воспользуйте командой /create.');
 });
 
 
@@ -220,7 +220,7 @@ bot.command('/add_address', (ctx) => {
   if(!user)
     return sendMessageToUser(id, 'Чтобы воспользоваться возможностями бота, необходимо подписаться. Для этого отправьте команду /subscribe.');
   else if(!user.isCreatingMeeting)
-    return sendMessageToUser(id, 'Чтобы добавлять данные, необходимо создать шаблон встречи. Если Вы хотите создать его, воспользуйтесь командой /create_new_meeting.');
+    return sendMessageToUser(id, 'Чтобы добавлять данные, необходимо создать шаблон встречи. Если Вы хотите создать его, воспользуйтесь командой /create.');
 
   const len = String('/add_address').length;
   const address = ctx.message.body.trim().substr(len);
@@ -245,7 +245,7 @@ bot.command('/add_date', (ctx) => {
   if(!user)
     return sendMessageToUser(id, 'Чтобы воспользоваться возможностями бота, необходимо подписаться. Для этого отправьте команду /subscribe.');
   else if(!user.isCreatingMeeting)
-    return sendMessageToUser(id, 'Чтобы добавлять данные, необходимо создать шаблон встречи. Если Вы хотите создать его, воспользуйтесь командой /create_new_meeting.');
+    return sendMessageToUser(id, 'Чтобы добавлять данные, необходимо создать шаблон встречи. Если Вы хотите создать его, воспользуйтесь командой /create.');
 
   const len = String('/add_date').length;
   const date = ctx.message.body.trim().substr(len);
@@ -271,7 +271,7 @@ bot.command('/add_time', (ctx) => {
   if(!user)
     return sendMessageToUser(id, 'Чтобы воспользоваться возможностями бота, необходимо подписаться. Для этого отправьте команду /subscribe.');
   else if(!user.isCreatingMeeting)
-    return sendMessageToUser(id, 'Чтобы добавлять данные, необходимо создать шаблон встречи. Если Вы хотите создать его, воспользуйтесь командой /create_new_meeting.');
+    return sendMessageToUser(id, 'Чтобы добавлять данные, необходимо создать шаблон встречи. Если Вы хотите создать его, воспользуйтесь командой /create.');
 
   const len = String('/add_time').length;
   const time = ctx.message.body.trim().substr(len);
@@ -296,7 +296,7 @@ bot.command('/add_description', (ctx) => {
   if(!user)
     return sendMessageToUser(id, 'Чтобы воспользоваться возможностями бота, необходимо подписаться. Для этого отправьте команду /subscribe.');
   else if(!user.isCreatingMeeting)
-    return sendMessageToUser(id, 'Чтобы добавлять данные, необходимо создать шаблон встречи. Если Вы хотите создать его, воспользуйтесь командой /create_new_meeting.');
+    return sendMessageToUser(id, 'Чтобы добавлять данные, необходимо создать шаблон встречи. Если Вы хотите создать его, воспользуйтесь командой /create.');
 
   const len = String('/add_description').length;
   const descr = ctx.message.body.trim().substr(len);
@@ -309,7 +309,7 @@ bot.command('/add_description', (ctx) => {
 });
 
 
-//  /add_description command
+//  /invite command
 bot.command('/invite', (ctx) => {
   const id = getIdFromContext(ctx);
   const user = getUserById(id);
@@ -317,7 +317,7 @@ bot.command('/invite', (ctx) => {
   if(!user)
     return sendMessageToUser(id, 'Чтобы воспользоваться возможностями бота, необходимо подписаться. Для этого отправьте команду /subscribe.');
   else if(!user.isCreatingMeeting)
-    return sendMessageToUser(id, 'Чтобы добавлять данные, необходимо создать шаблон встречи. Если Вы хотите создать его, воспользуйтесь командой /create_new_meeting.');
+    return sendMessageToUser(id, 'Чтобы добавлять данные, необходимо создать шаблон встречи. Если Вы хотите создать его, воспользуйтесь командой /create.');
 
   const len = String('/invite').length;
   const people = ctx.message.body.trim().substr(len).split(',').map(person => person.trim()).filter(person => person !== '');
@@ -333,7 +333,7 @@ bot.command('/invite', (ctx) => {
 });
 
 
-//  /add_description command
+//  /delete command
 bot.command('/delete', (ctx) => {
   const id = getIdFromContext(ctx);
   const user = getUserById(id);
@@ -341,7 +341,7 @@ bot.command('/delete', (ctx) => {
   if(!user)
     return sendMessageToUser(id, 'Чтобы воспользоваться возможностями бота, необходимо подписаться. Для этого отправьте команду /subscribe.');
   else if(!user.isCreatingMeeting)
-    return sendMessageToUser(id, 'Чтобы добавлять данные, необходимо создать шаблон встречи. Если Вы хотите создать его, воспользуйтесь командой /create_new_meeting.');
+    return sendMessageToUser(id, 'Чтобы добавлять данные, необходимо создать шаблон встречи. Если Вы хотите создать его, воспользуйтесь командой /create.');
   else if(user.meetingData.invitedPeople.length <= 0)
     return sendMessageToUser(id, 'Ваш список приглашенных людей пуст. Чтобы добавить пользователя, используйте команду /invite.');
 
@@ -358,15 +358,15 @@ bot.command('/delete', (ctx) => {
 });
 
 
-//  /meeting_status command
-bot.command('/meeting_status', (ctx) => {
+//  /status command
+bot.command('/status', (ctx) => {
   const id = getIdFromContext(ctx);
   const user = getUserById(id);
 
   if(!user)
     return sendMessageToUser(id, 'Чтобы воспользоваться возможностями бота, необходимо подписаться. Для этого отправьте команду /subscribe.');
   else if(!user.isCreatingMeeting)
-    return sendMessageToUser(id, 'Чтобы добавлять данные, необходимо создать шаблон встречи. Если Вы хотите создать его, воспользуйтесь командой /create_new_meeting.');
+    return sendMessageToUser(id, 'Чтобы добавлять данные, необходимо создать шаблон встречи. Если Вы хотите создать его, воспользуйтесь командой /create.');
 
   const data = user.meetingData;
   const message = createDataPresentation(data);
@@ -375,15 +375,15 @@ bot.command('/meeting_status', (ctx) => {
 });
 
 
-//  /send_meeting command
-bot.command('/send_meeting', (ctx) => {
+//  /send command
+bot.command('/send', (ctx) => {
   const id = getIdFromContext(ctx);
   const user = getUserById(id);
 
   if(!user)
     return sendMessageToUser(id, 'Чтобы воспользоваться возможностями бота, необходимо подписаться. Для этого отправьте команду /subscribe.');
   else if(!user.isCreatingMeeting)
-    return sendMessageToUser(id, 'Чтобы добавлять данные, необходимо создать шаблон встречи. Если Вы хотите создать его, воспользуйтесь командой /create_new_meeting.');
+    return sendMessageToUser(id, 'Чтобы добавлять данные, необходимо создать шаблон встречи. Если Вы хотите создать его, воспользуйтесь командой /create.');
 
   
   const data = user.meetingData;
@@ -432,17 +432,3 @@ bot.startPolling((err) => {
     console.error(err);
   }
 });
-
-
-
-/*
-* important code piece
-
-  const id = ctx.message.user_id;
-  bot.execute('users.get', {
-    user_ids: 'vladislav0art',
-  })
-    .then(res => console.log(res))
-    .catch(err => console.error(err));
-
-*/

@@ -1,0 +1,17 @@
+{
+  "name": "vk-meeting-bot",
+  "version": "1.0.0",
+  "description": "Codebase for VK meeting chat bot",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "nodemon": "^2.0.12"
+  },
+  "dependencies": {
+    "node-vk-bot-api": "^3.5.0"
+  }
+}

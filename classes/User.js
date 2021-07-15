@@ -1,8 +1,9 @@
 const MeetingData = require('./MeetingData');
 
 class User {
-  constructor(id) {
+  constructor(id, username) {
     this._id = id;
+    this._username = username;
     this._isCreatingMeeting = false;
     this._meetingData = new MeetingData(id);
   }
@@ -12,6 +13,10 @@ class User {
     return this._id;
   }
 
+  // username interface
+  get username() {
+    return this._username;
+  }
 
   // isCreatingMeeting interface
   get isCreatingMeeting() {

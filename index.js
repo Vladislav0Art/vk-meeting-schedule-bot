@@ -2,7 +2,7 @@ const VkBot = require('node-vk-bot-api');
 const User = require('./classes/User');
 const configKeys = require('./config/keys');
 const bot = new VkBot(configKeys.acccessToken);
-
+const weatherAPI = require('./weatherAPI');
 
 // added users
 let subscribedUsers = [];
@@ -22,13 +22,13 @@ const commandsAndDescriptions = {
   
   '/add_time [time]': 'Добавляет время в шаблон встечи. Вместо [time] впишите необходимое время.',
 
-  '/add_description [description]': 'Добавляет описание Вашей встречи (необязательное поле). Вместо [description] впишите необходимое описание.',
+  '/add_description [description]': 'Добавляет описание Вашей встречи. Вместо [description] впишите необходимое описание.',
   
   '/invite [person_vk_id], [person_vk_id]': 'Добавляет позьзователя, которму прийдет оповещение о встречи. Вместо [person_vk_id] нужно указать id пользователя (чтобы пригласить несколько пользователей, укажите их id через запятую). Вы ипользуете его, когда обращаетесь к пользователю через значок @ в беседах (например: id1, vladislav0art и т.д.).',
   
   '/delete [person_vk_id], [person_vk_id]': 'Удаляет пользователя, id которого указан вместо [person_vk_id], если он был ранее добавлен (чтобы удалить несколько пользователей, укажите их id через запятую).',
   
-  '/add_weather': 'Добавляет погоду в зависимости от выбранного дня.',
+  '/add_weather [city] [time]': 'Добавляет погоду в зависимости от выбранного дня (можно узнать погоду не более чем на 10 дней вперед). \n Формат ввода данных: \n [city] - город, на английском языке (например: Krasnodar, Moscow) \n [time] - время, необходимо указывать в следующем формате: yyyy-mm-dd hh:mm (например: 2021-07-15 01:00). Если не указывать время, то будет выводиться средняя температура дня.',
   
   '/discard': 'Удаляет текущий шаблон встречи.',
   
@@ -102,34 +102,39 @@ const RemoveInvitedPeopleFromUser = (userId, people) => {
 
 
 // creating message with props of meeting data
-const createDataPresentation = (data) => {
-  let message = "";
-  for (prop in data) {
-    if(data[prop] instanceof Array)
-      message += `${prop.substr(1)}: ${data[prop].length > 0 ? data[prop].join(', ') : 'no people invited'}\n`;
-    else
-      message += `${prop.substr(1)}: ${data[prop] ? data[prop] : 'not specified' }\n`;
-  }
-  return message;
-};
+// const createDataPresentation = (data) => {
+//   let message = "";
+//   for (prop in data) {
+//     if(data[prop] instanceof Array)
+//       message += `${prop.substr(1)}: ${data[prop].length > 0 ? data[prop].join(', ') : 'no people invited'}\n`;
+//     else
+//       message += `${prop.substr(1)}: ${data[prop] ? data[prop] : 'not specified' }\n`;
+//   }
+//   return message;
+// };
 
 
 // getting ids of invited people
-const getIdsOfInvitedPeople = (invitedPeople) => new Promise((resolve, reject) => {
+const getDataOfInvitedPeople = (invitedPeople) => new Promise((resolve, reject) => {
   bot.execute('users.get', {
     user_ids: invitedPeople,
   })
     .then(res => {
       const ids = [];
+      const names = [];
+
       res.forEach(user => ids.push(user.id));
+      res.forEach(user => names.push(`${user.first_name} ${user.last_name}`));
 
       if(ids.length !== invitedPeople.length) {
-        throw new Error('Не удалось найти некоторых пользователей!');
+        return reject('Не удалось найти некоторых пользователей!');
       }
-
-      resolve(ids);
+      resolve([ids, names]);
     })
-    .catch((err) => reject(err));
+    .catch((err) => {
+      console.error(err);
+      reject('Что-то пошло не так');
+    });
 });
 
 
@@ -159,10 +164,20 @@ bot.command('/subscribe', (ctx) => {
     return sendMessageToUser(id, 'Вы уже подписаны. Если Вы хотите отписаться, то используйте команду /unsubscribe.');
   }
   
-  const user = new User(id);
+  bot.execute('users.get', {
+    user_ids: id
+  })
+    .then(res => {
+      const username = `${res[0].first_name} ${res[0].last_name}`;
+      const user = new User(id, username);
 
-  subscribedUsers.push(user);
-  sendMessageToUser(id, 'Вы успешно подписаны.');
+      subscribedUsers.push(user);
+      sendMessageToUser(id, 'Вы успешно подписаны.');
+    })
+    .catch(err => {
+      console.error(err);
+      sendMessageToUser(id, 'Не получилось произвести подписку. Попробуйте еще раз!');
+    });
 });
 
 
@@ -305,7 +320,7 @@ bot.command('/add_description', (ctx) => {
   const index = findIndexOfUserById(id);
   subscribedUsers[index].meetingData.description = descr;
   
-  sendMessageToUser(id, 'Описание установлено. Если Вы хотите изменить описание, отправьте команду /add_description с новым описанием.')
+  sendMessageToUser(id, 'Описание успешно установлено. Если Вы хотите изменить описание, отправьте команду /add_description с новым описанием.')
 });
 
 
@@ -328,7 +343,6 @@ bot.command('/invite', (ctx) => {
 
   // adding invited people
   AddInvitedPeopleToUser(id, people);
-  // console.log(subscribedUsers[0].meetingData.invitedPeople);
   sendMessageToUser(id, `Пользователи успешно приглашены. \n\n На встречу приглашены: ${ getUserById(id).meetingData.invitedPeople.join(', ') }.`);
 });
 
@@ -358,6 +372,39 @@ bot.command('/delete', (ctx) => {
 });
 
 
+//  /add_weather command
+bot.command('/add_weather', (ctx) => {
+  const id = getIdFromContext(ctx);
+  const user = getUserById(id);
+
+  if(!user)
+    return sendMessageToUser(id, 'Чтобы воспользоваться возможностями бота, необходимо подписаться. Для этого отправьте команду /subscribe.');
+  else if(!user.isCreatingMeeting)
+    return sendMessageToUser(id, 'Чтобы добавлять данные, необходимо создать шаблон встречи. Если Вы хотите создать его, воспользуйтесь командой /create.');
+
+  const len = String('/add_weather').length;
+  const data = ctx.message.body.trim().substr(len).split(' ').map(item => item.trim()).filter(item => item !== '');
+  
+  const [city = '', date = '', time = ''] = data;
+
+  if(city === '' && date === '' && time === '') {
+    return sendMessageToUser(id, 'Чтобы установить погоду, необходимо ввести город на английском языке, например: London, Moscow.');
+  }
+
+  weatherAPI(city, date, time)
+    .then(weatherData => {
+        // setting address to the user
+        const index = findIndexOfUserById(id);
+        subscribedUsers[index].meetingData.weather = `${weatherData.avgtemp_text}, ${weatherData.condition}`;
+        sendMessageToUser(id, 'Погода успешно установлена. Если Вы хотите изменить город/время, отправьте команду /add_weather с новыми значениями, и прогноз погоды обновится.');
+    })
+    .catch(err => {
+      console.error(err);
+      sendMessageToUser(id, 'Не удалось установить погоду. Убедитесь, что Вы верно указали формат города и даты/времени.');
+    });
+});
+
+
 //  /status command
 bot.command('/status', (ctx) => {
   const id = getIdFromContext(ctx);
@@ -368,10 +415,18 @@ bot.command('/status', (ctx) => {
   else if(!user.isCreatingMeeting)
     return sendMessageToUser(id, 'Чтобы добавлять данные, необходимо создать шаблон встречи. Если Вы хотите создать его, воспользуйтесь командой /create.');
 
-  const data = user.meetingData;
-  const message = createDataPresentation(data);
 
-  sendMessageToUser(id, message);
+  getDataOfInvitedPeople(user.meetingData.invitedPeople)
+    .then(res => {
+      const [ids, names] = res;
+      const message = user.meetingData.makePresentableMessage(user.username, names);
+      sendMessageToUser(id, message);
+    })
+    .catch(err => {
+      console.error(err);
+      sendMessageToUser(id, 'Что-то пошло не так... Попробуйте еще раз!');
+    });
+
 });
 
 
@@ -388,27 +443,25 @@ bot.command('/send', (ctx) => {
   
   const data = user.meetingData;
   let hasUnspecifiedFiled = false;
-  let errorMessage = "Для следующих полей не установлены значения: ";
 
   for (prop in data) {
     if(data[prop] instanceof Array && data[prop].length <= 0) {
-      errorMessage += `${ hasUnspecifiedFiled && ',' } ${prop.substr(1)}`;
       hasUnspecifiedFiled = true;
     }
-    else if((data[prop] instanceof Array) && !data[prop] && prop !== '_description') {
-      errorMessage += `${ hasUnspecifiedFiled && ',' } ${prop.substr(1)}`;
+    else if(!(data[prop] instanceof Array) && !data[prop]) {
       hasUnspecifiedFiled = true;
     }
   }
 
   // if unspecified fields remained
   if(hasUnspecifiedFiled) {
-    return sendMessageToUser(id, errorMessage);
+    return sendMessageToUser(id, 'У Вас остались незаполненные поля. Отправьте команду /status, чтобы узнать, какие поля необходимо заполнить.');
   }
 
-  getIdsOfInvitedPeople(user.meetingData.invitedPeople)
-    .then(ids => {
-      const message = createDataPresentation(data);
+  getDataOfInvitedPeople(user.meetingData.invitedPeople)
+    .then(res => {
+      const [ids, names] = res;
+      const message = user.meetingData.makePresentableMessage(user.username, names);
 
       // sending data to invited people
       bot.sendMessage(ids, message)
@@ -420,6 +473,11 @@ bot.command('/send', (ctx) => {
         console.error(err);
         sendMessageToUser(id, 'Что-то пошло не так... Попробуйте отправить приглашения еще раз.');
       });
+
+    })
+    .catch(err => {
+      console.error(err);
+      sendMessageToUser(id, 'Что-то пошло не так... Попробуйте отправить приглашения еще раз.');
     });
 });
 

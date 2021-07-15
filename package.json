@@ -12,6 +12,7 @@
     "nodemon": "^2.0.12"
   },
   "dependencies": {
+    "axios": "^0.21.1",
     "node-vk-bot-api": "^3.5.0"
   }
 }

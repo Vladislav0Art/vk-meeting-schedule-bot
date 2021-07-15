@@ -6,7 +6,22 @@ class MeetingData {
     this._time = null;
     this._description = '';
     this._invitedPeople = [];
-    this._weather = 'coming soon...';
+    this._weather = 'не установлено';
+    
+    this._labels = {
+      invitingPerson: 'Вас приглашает: ',
+      address: 'Адрес: ',
+      date: 'Когда: ',
+      time: 'Время: ',
+      invitedPeople: 'Также приглашены: ',
+      description: 'Описание: ',
+      weather: 'Погода будет: ' 
+    };
+  }
+
+  // getting labels
+  get labels() {
+    return this._labels;
   }
 
   // invitingPerson interface
@@ -50,6 +65,15 @@ class MeetingData {
   }
 
 
+  // weather interface
+  get weather() {
+    return this._weather;
+  }
+  set weather(details) {
+    this._weather = details;
+  }
+
+
   // invitedPeople interface
   get invitedPeople() {
     return this._invitedPeople;
@@ -80,15 +104,32 @@ class MeetingData {
     this._time = null;
     this._description = '';
     this._invitedPeople = [];
-    this._weather = 'coming soon...';
+    this._weather = 'не установлено';
   }
 
-  // weather interface
-  get weather() {
-    return this._weather;
-  }
-  set weather(details) {
-    this._weather = details;
+
+  makePresentableMessage(username, invitedPeopleNames) {
+    const labels = this.labels;
+    let message = 'Здравствуйте, Вас пригласили на встречу! Информация о встрече приведена ниже: \n\n';
+    
+    for(const field in labels) {
+      if(this[field] instanceof Array) {
+        if(field === 'invitedPeople')
+          message += `${labels[field]} ${invitedPeopleNames.length > 0 ? invitedPeopleNames.join(', ') : 'нет пользователей'}`;
+        else
+          message += `${labels[field]} ${this[field].length ? this[field].join(', ') : 'не заполнено'}`;
+      }
+      else {
+        if(field === 'invitingPerson')
+          message += `${labels[field]} ${username ? username : 'не заполнено'}`;
+        else
+          message += `${labels[field]} ${this[field] ? this[field] : 'не заполнено'}`;
+      }
+
+      message += '\n';
+    }
+
+    return message;
   }
 };
 

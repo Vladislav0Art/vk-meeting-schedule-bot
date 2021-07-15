@@ -48,13 +48,17 @@ beautifyResponse = (data, date, time) => new Promise((resolve, reject) => {
 
 
 const requestWeather = (city, date, time) => {
+  const key = process.env.WEATHER_API_KEY || weatherAPI.key;
+  const days = process.env.WEATHER_API_DAYS || weatherAPI.days;
+  const baseUrl = process.env.WEATHER_API_URL || weatherAPI.baseUrl;
+
   const params = {
-    key: weatherAPI.key,
-    days: weatherAPI.days,
+    key,
+    days,
     q: city,
   };
 
-  return axios.get(`${weatherAPI.baseUrl}`, { params })
+  return axios.get(`${baseUrl}`, { params })
     .then(res => beautifyResponse(res.data, date, time));
 };
 

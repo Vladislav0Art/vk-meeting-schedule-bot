@@ -1,7 +1,7 @@
 const VkBot = require('node-vk-bot-api');
 const User = require('./classes/User');
 const configKeys = require('./config/keys');
-const bot = new VkBot(configKeys.acccessToken);
+const bot = new VkBot(process.env.ACCESS_TOKEN || configKeys.accessToken);
 const weatherAPI = require('./weatherAPI');
 
 // added users

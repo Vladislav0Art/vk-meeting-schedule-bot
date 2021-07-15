@@ -7,6 +7,7 @@ const weatherAPI = require('./weatherAPI');
 // added users
 console.log('test');
 
+
 let subscribedUsers = [];
 
 const commandsAndDescriptions = {

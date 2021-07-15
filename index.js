@@ -8,7 +8,7 @@ const weatherAPI = require('./weatherAPI');
 let subscribedUsers = [];
 
 const commandsAndDescriptions = {
-  'Start': 'Показывает список всех доступных команд и их описание.',
+  'Start или Начать или /start': 'Показывает список всех доступных команд и их описание.',
 
   '/subscribe': 'Запоминает пользователя. Команда необходыма, чтобы воспользоваться функциями бота.',
 
@@ -123,12 +123,7 @@ const getDataOfInvitedPeople = (invitedPeople) => new Promise((resolve, reject) 
     });
 });
 
-
-
-// --- COMMANDS --- //
-
-//  Start command
-bot.command('Start', (ctx) => {
+const startFunction = (ctx) => {
   const id = getIdFromContext(ctx);
   let message = "Meeting Schedule Bot поддреживает следующие команды:\n\n";
   
@@ -139,7 +134,14 @@ bot.command('Start', (ctx) => {
   message += '\n\n Для того, чтобы запланировать встречу, необходимо подписаться, используя команду /subscribe. Чтобы отписаться от возможностей бота используйте комманду /unsubscribe.'
 
   sendMessageToUser(id, message);
-});
+}
+
+// --- COMMANDS --- //
+
+//  Start command
+bot.command('Start', startFunction);
+bot.command('Начать', startFunction);
+bot.command('/start', startFunction);
 
 
 //  /subscribe command

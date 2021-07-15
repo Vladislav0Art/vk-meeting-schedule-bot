@@ -5,9 +5,6 @@ const bot = new VkBot(process.env.ACCESS_TOKEN || configKeys.accessToken);
 const weatherAPI = require('./weatherAPI');
 
 // added users
-console.log('test');
-
-
 let subscribedUsers = [];
 
 const commandsAndDescriptions = {

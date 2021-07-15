@@ -100,20 +100,6 @@ const RemoveInvitedPeopleFromUser = (userId, people) => {
   subscribedUsers[index].meetingData.removeInvitedPeople(people);
 };
 
-
-// creating message with props of meeting data
-// const createDataPresentation = (data) => {
-//   let message = "";
-//   for (prop in data) {
-//     if(data[prop] instanceof Array)
-//       message += `${prop.substr(1)}: ${data[prop].length > 0 ? data[prop].join(', ') : 'no people invited'}\n`;
-//     else
-//       message += `${prop.substr(1)}: ${data[prop] ? data[prop] : 'not specified' }\n`;
-//   }
-//   return message;
-// };
-
-
 // getting ids of invited people
 const getDataOfInvitedPeople = (invitedPeople) => new Promise((resolve, reject) => {
   bot.execute('users.get', {
@@ -146,8 +132,9 @@ bot.command('Start', (ctx) => {
   const id = getIdFromContext(ctx);
   let message = "Meeting Schedule Bot поддреживает следующие команды:\n\n";
   
+  let inc = 1;
   for (command in commandsAndDescriptions)
-    message += `${command}: ${commandsAndDescriptions[command]}\n\n`;
+    message += `${inc++}) ${command}: ${commandsAndDescriptions[command]}\n\n`;
 
   message += '\n\n Для того, чтобы запланировать встречу, необходимо подписаться, используя команду /subscribe. Чтобы отписаться от возможностей бота используйте комманду /unsubscribe.'
 

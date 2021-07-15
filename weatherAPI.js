@@ -49,8 +49,8 @@ beautifyResponse = (data, date, time) => new Promise((resolve, reject) => {
 
 const requestWeather = (city, date, time) => {
   const key = process.env.WEATHER_API_KEY || weatherAPI.key;
-  const days = process.env.WEATHER_API_DAYS || weatherAPI.days;
-  const baseUrl = process.env.WEATHER_API_URL || weatherAPI.baseUrl;
+  const days = weatherAPI.days;
+  const baseUrl = weatherAPI.baseUrl;
 
   const params = {
     key,

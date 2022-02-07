@@ -1,4 +1,4 @@
-# Here will be text about this bot
+# VK Meeting Schedule Bot
 
 If you have cloned the repo, do not forget to create file `keys.js` with the following code:
 ```javascript

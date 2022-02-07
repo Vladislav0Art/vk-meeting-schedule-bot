@@ -16,7 +16,7 @@ You can try this bot online [here](https://vk.com/meeting_schedule_bot).
 
 There are several commands this bot supports:
 
-1. `Start`: Shows the abaliable commands
+1. `Start`: Shows available commands
 
 2.  `/subscribe`: Remembers the user. The command is required to take advantage of the bot's functions
 

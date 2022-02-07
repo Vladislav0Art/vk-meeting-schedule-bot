@@ -13,6 +13,7 @@ module.exports = {
 ```
 
 You can try this bot online [here](https://vk.com/meeting_schedule_bot). 
+Note: currently the bot is turned off.
 
 There are several commands this bot supports:
 

@@ -14,7 +14,7 @@ module.exports = {
 
 You can try this bot online [here](https://vk.com/meeting_schedule_bot). 
 
-There are several commands this bot support:
+There are several commands this bot supports:
 
 1. `Start`: Shows the abaliable commands,
 

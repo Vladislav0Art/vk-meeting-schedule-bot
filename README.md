@@ -39,7 +39,7 @@ There are several commands this bot supports:
 11. `/add_weather [city] [time]`: Adds weather depending on the selected day (you can find out the weather no more than 10 days in advance).
     Data input format:
     
-      [city] - city, in English (for example: Krasnodar, Moscow)
+      `[city]` - city, in English (for example: Krasnodar, Moscow)
 
       `[time]` - time, you must specify in the following format: `yyyy-mm-dd` `hh:mm` (for example: 2021-07-15 01:00). If you do not specify the time, the average temperature of the day will be displayed,
       

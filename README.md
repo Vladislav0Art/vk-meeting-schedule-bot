@@ -49,4 +49,4 @@ There are several commands this bot supports:
 
 13. `/status`: Shows all information about the current appointment template
 
-14. `/send`: Sends a message to everyone you have indicated through the `/invite` command`
+14. `/send`: Sends a message to everyone you have indicated through the `/invite` command
